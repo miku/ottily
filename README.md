@@ -8,16 +8,16 @@ Examples
 
 Noop -- is just an expensive `cat`.
 
-    $ ottily -i datasets/simple.ldj
+    $ ottily datasets/simple.ldj
     {"name": "ottily", "language": "Golang"}
 
 Inline script with `-e`:
 
-    $ ottily -i datasets/simple.ldj -e 'output=input.length'
+    $ ottily -e 'output=input.length' datasets/simple.ldj
     40
 
-    $ ottily -i datasets/simple.ldj \
-             -e 'o=JSON.parse(input); o["language"] = "Go"; output=JSON.stringify(o);'
+    $ ottily -e 'o=JSON.parse(input); o["language"] = "Go"; output=JSON.stringify(o);' \
+                datasets/simple.ldj
 
     {"language":"Go","name":"ottily"}
 
@@ -26,7 +26,7 @@ Pass a script file with `-s`:
     $ cat scripts/classified.js
     output = "CLASSIFIED"
 
-    $ ottily -i datasets/simple.ldj -s scripts/classified.js
+    $ ottily -s scripts/classified.js datasets/simple.ldj
     CLASSIFIED
 
 A string variable `input` is passed into the javascript snippet.
@@ -53,11 +53,11 @@ Given a file with 1 million lines, calculate the length of each line.
     user    0m5.514s
     sys     0m0.314s
 
-    $ time ottily -i datasets/1M.ldj -e 'output=input.length' > /dev/null
+    $ time ottily -e 'output=input.length' datasets/1M.ldj > /dev/null
 
-    real    0m15.861s
-    user    0m52.839s
-    sys     0m6.903s
+    real    0m16.488s
+    user    0m53.391s
+    sys     0m7.171s
 
 Given a file with 1 million lines, one JSON document per line, add a new key to each JSON document.
 
@@ -67,9 +67,8 @@ Given a file with 1 million lines, one JSON document per line, add a new key to 
     user    2m29.517s
     sys     0m1.500s
 
-    $ time ottily -i datasets/1M.ldj \
-                  -e 'o=JSON.parse(input); o["about"] = "ot"; output=JSON.stringify(o);' \
-                  > /dev/null
+    $ time ottily -e 'o=JSON.parse(input); o["about"] = "ot"; output=JSON.stringify(o);' \
+                  datasets/1M.ldj > /dev/null
 
     real    5m59.872s
     user    21m3.009s

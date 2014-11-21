@@ -2,20 +2,20 @@
 //
 // Noop:
 //
-//     $ ottily -i datasets/simple.ldj
+//     $ ottily datasets/simple.ldj
 //     {"name": "ottily", "language": "Golang"}
 //
 // Inline script with -e:
 //
-//     $ ottily -i datasets/simple.ldj -e 'output=input.length'
+//     $ ottily -e 'output=input.length' datasets/simple.ldj
 //	   40
 //
-//     $ ottily -i datasets/simple.ldj -e 'o=JSON.parse(input); o["language"] = "Go"; output=JSON.stringify(o);'
+//     $ ottily -e 'o=JSON.parse(input); o["language"] = "Go"; output=JSON.stringify(o);' datasets/simple.ldj
 //     {"language":"Go","name":"ottily"}
 //
 // Pass a script file:
 //
-//     $ ottily -i datasets/simple.ldj -s scripts/classified.js
+//     $ ottily -s scripts/classified.js datasets/simple.ldj
 //     CLASSIFIED
 //
 package main
@@ -39,12 +39,12 @@ import (
 const NOOP_SCRIPT = "output = input"
 const VERSION = "0.1.0"
 
-func Worker(lines, out chan string, script string, wg *sync.WaitGroup) {
+func Worker(lines, out chan *string, script string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	vm := otto.New()
 
 	for line := range lines {
-		vm.Set("input", line)
+		vm.Set("input", *line)
 		_, err := vm.Run(script)
 		if err != nil {
 			log.Fatal(err)
@@ -56,23 +56,23 @@ func Worker(lines, out chan string, script string, wg *sync.WaitGroup) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		out <- result.String()
+		r := result.String()
+		out <- &r
 	}
 }
 
 // FanInWriter writes the channel content to the writer
-func FanInWriter(writer io.Writer, in chan string, done chan bool) {
+func FanInWriter(writer io.Writer, in chan *string, done chan bool) {
 	for s := range in {
-		writer.Write([]byte(s))
+		writer.Write([]byte(*s))
 		writer.Write([]byte("\n"))
 	}
 	done <- true
 }
 
 func main() {
-	input := flag.String("i", "", "input newline delimited file")
-	script := flag.String("s", "", "script to execute on the file")
-	execute := flag.String("e", "", "use argument as script")
+	script := flag.String("s", "", "script to execute on each line of input")
+	execute := flag.String("e", "", "execute argument on each line of input")
 	numWorkers := flag.Int("w", runtime.NumCPU(), "number of workers")
 	version := flag.Bool("v", false, "prints current program version")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
@@ -93,8 +93,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *input == "" {
-		log.Fatal("input required")
+	if flag.NArg() < 1 {
+		log.Fatal("input file required")
 	}
 
 	content := NOOP_SCRIPT
@@ -115,7 +115,7 @@ func main() {
 		content = *execute
 	}
 
-	ff, err := os.Open(*input)
+	ff, err := os.Open(flag.Arg(0))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,8 +126,8 @@ func main() {
 		runtime.GOMAXPROCS(*numWorkers)
 	}
 
-	queue := make(chan string)
-	out := make(chan string)
+	queue := make(chan *string)
+	out := make(chan *string)
 	done := make(chan bool)
 	var wg sync.WaitGroup
 
@@ -147,7 +147,7 @@ func main() {
 			log.Fatal(err)
 		}
 		line = strings.TrimSpace(line)
-		queue <- line
+		queue <- &line
 	}
 	close(queue)
 	wg.Wait()
