@@ -3,6 +3,22 @@ ottily
 
 Ottily executes a javascript snippet on each line of an input file in parallel.
 
+Installation
+------------
+
+    $ go get github.com/miku/ottily/cmd/ottily
+
+Usage
+-----
+
+    $ ottily -h
+    Usage of ottily:
+      -cpuprofile="": write cpu profile to file
+      -e="": execute argument on each line of input
+      -s="": script to execute on each line of input
+      -v=false: prints current program version
+      -w=4: number of workers
+
 Examples
 --------
 
@@ -42,7 +58,7 @@ Ottily is just a [156 LOC](https://github.com/miku/ottily/blob/6d81c71afe2a29fb5
 
 Given a file with 1 million lines, calculate the length of each line.
 
-    $ time perl -ne 'print length . "\n";' datasets/1M.ldj > /dev/null
+    $ time perl -ne 'print length() . "\n";' datasets/1M.ldj > /dev/null
     real    0m2.085s
     user    0m1.588s
     sys     0m0.495s
@@ -73,6 +89,8 @@ Given a file with 1 million lines, one JSON document per line, add a new key to 
     real    5m59.872s
     user    21m3.009s
     sys     0m52.241s
+
+Above tests were done on 4 cores.
 
 Credits
 -------
