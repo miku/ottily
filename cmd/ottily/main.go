@@ -39,9 +39,16 @@ import (
 const NOOP_SCRIPT = "output = input"
 const VERSION = "0.1.0"
 
-func Worker(lines, out chan *string, script string, wg *sync.WaitGroup) {
+func Worker(lines, out chan *string, script, preload string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	vm := otto.New()
+
+	if preload != "" {
+		_, err := vm.Run(preload)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	compiled, err := vm.Compile("", script)
 	if err != nil {
@@ -76,6 +83,7 @@ func FanInWriter(writer io.Writer, in chan *string, done chan bool) {
 }
 
 func main() {
+	preload := flag.String("p", "", "include this js file before processing")
 	script := flag.String("s", "", "script to execute on each line of input")
 	execute := flag.String("e", "", "execute argument on each line of input")
 	numWorkers := flag.Int("w", runtime.NumCPU(), "number of workers")
@@ -100,6 +108,20 @@ func main() {
 
 	if flag.NArg() < 1 {
 		log.Fatal("input file required")
+	}
+
+	preloadContent := ""
+
+	if *preload != "" {
+		ff, err := os.Open(*preload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		b, err := ioutil.ReadAll(ff)
+		if err != nil {
+			log.Fatal(err)
+		}
+		preloadContent = string(b)
 	}
 
 	content := NOOP_SCRIPT
@@ -142,7 +164,7 @@ func main() {
 
 	for i := 0; i < *numWorkers; i++ {
 		wg.Add(1)
-		go Worker(queue, out, content, &wg)
+		go Worker(queue, out, content, preloadContent, &wg)
 	}
 
 	for {
