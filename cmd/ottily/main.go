@@ -136,7 +136,9 @@ func main() {
 	done := make(chan bool)
 	var wg sync.WaitGroup
 
-	go FanInWriter(os.Stdout, out, done)
+	writer := bufio.NewWriter(os.Stdout)
+	defer writer.Flush()
+	go FanInWriter(writer, out, done)
 
 	for i := 0; i < *numWorkers; i++ {
 		wg.Add(1)
