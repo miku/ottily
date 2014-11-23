@@ -37,7 +37,7 @@ import (
 )
 
 const NOOP_SCRIPT = "output = input"
-const VERSION = "0.1.0"
+const VERSION = "0.1.1"
 
 func Worker(lines, out chan *string, script, preload string, wg *sync.WaitGroup) {
 	defer wg.Done()
