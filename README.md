@@ -54,7 +54,7 @@ By default, `ottily` will run as many workers as there are cores.
 Performance
 -----------
 
-Ottily is just a [156 LOC](https://github.com/miku/ottily/blob/6d81c71afe2a29fb5d3445b0813642285463ca6b/cmd/ottily/main.go) Go program. In many cases, there will be faster alternatives.
+Ottily is just a [140 LOC](https://github.com/miku/ottily/blob/7237d276d4cbe16bbbf651543f6d4bfb86721545/cmd/ottily/main.go) Go program. In many cases, there will be faster alternatives.
 
 Given a file with 1 million lines, calculate the length of each line.
 
