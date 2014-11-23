@@ -15,6 +15,7 @@ Usage
     Usage of ottily:
       -cpuprofile="": write cpu profile to file
       -e="": execute argument on each line of input
+      -p="": include this js file before processing
       -s="": script to execute on each line of input
       -v=false: prints current program version
       -w=4: number of workers
