@@ -43,9 +43,14 @@ func Worker(lines, out chan *string, script string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	vm := otto.New()
 
+	compiled, err := vm.Compile("", script)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for line := range lines {
 		vm.Set("input", *line)
-		_, err := vm.Run(script)
+		_, err := vm.Run(compiled)
 		if err != nil {
 			log.Fatal(err)
 		}
