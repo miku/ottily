@@ -58,11 +58,6 @@ Ottily is just a [156 LOC](https://github.com/miku/ottily/blob/6d81c71afe2a29fb5
 
 Given a file with 1 million lines, calculate the length of each line.
 
-    $ time perl -ne 'print length() . "\n";' datasets/1M.ldj > /dev/null
-    real    0m2.085s
-    user    0m1.588s
-    sys     0m0.495s
-
     $ time awk '{ print length }' datasets/1M.ldj  > /dev/null
 
     real    0m5.836s
@@ -71,9 +66,9 @@ Given a file with 1 million lines, calculate the length of each line.
 
     $ time ottily -e 'output=input.length' datasets/1M.ldj > /dev/null
 
-    real    0m16.488s
-    user    0m53.391s
-    sys     0m7.171s
+    real    0m11.758s
+    user    0m38.204s
+    sys     0m4.713s
 
 Given a file with 1 million lines, one JSON document per line, add a new key to each JSON document.
 
@@ -86,9 +81,9 @@ Given a file with 1 million lines, one JSON document per line, add a new key to 
     $ time ottily -e 'o=JSON.parse(input); o["about"] = "ot"; output=JSON.stringify(o);' \
                   datasets/1M.ldj > /dev/null
 
-    real    5m59.872s
-    user    21m3.009s
-    sys     0m52.241s
+    real    5m55.630s
+    user    20m25.530s
+    sys     0m46.750s
 
 Above tests were done on 4 cores.
 
