@@ -37,7 +37,7 @@ import (
 )
 
 const NOOP_SCRIPT = "output = input"
-const VERSION = "0.1.2"
+const VERSION = "0.1.3"
 
 func Worker(lines, out chan *string, script, preload string, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -89,7 +89,7 @@ func main() {
 	numWorkers := flag.Int("w", runtime.NumCPU(), "number of workers")
 	version := flag.Bool("v", false, "prints current program version")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
-	limit := flag.Int("l", -1, "maximum number of docs to convert")
+	limit := flag.Int("l", 0, "maximum number of docs to convert (0 no limit)")
 
 	flag.Parse()
 
@@ -170,7 +170,7 @@ func main() {
 
 	counter := 0
 	for {
-		if *limit != -1 && counter == *limit {
+		if *limit != 0 && counter == *limit {
 			break
 		}
 		line, err := reader.ReadString('\n')
