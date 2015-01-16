@@ -89,6 +89,7 @@ func main() {
 	numWorkers := flag.Int("w", runtime.NumCPU(), "number of workers")
 	version := flag.Bool("v", false, "prints current program version")
 	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
+	limit := flag.Int("l", -1, "maximum number of docs to convert")
 
 	flag.Parse()
 
@@ -167,7 +168,11 @@ func main() {
 		go Worker(queue, out, content, preloadContent, &wg)
 	}
 
+	counter := 0
 	for {
+		if *limit != -1 && counter == *limit {
+			break
+		}
 		line, err := reader.ReadString('\n')
 		if err == io.EOF {
 			break
@@ -177,6 +182,7 @@ func main() {
 		}
 		line = strings.TrimSpace(line)
 		queue <- &line
+		counter++
 	}
 	close(queue)
 	wg.Wait()
