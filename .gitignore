@@ -25,5 +25,6 @@ _testmain.go
 
 /ottily
 /eachline
+/eachline-parse
 /datasets/*ldj
 
