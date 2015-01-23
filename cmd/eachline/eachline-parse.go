@@ -28,7 +28,7 @@ func main() {
 	var container map[string]interface{}
 
 	for {
-		_, err := reader.ReadString('\n')
+		line, err := reader.ReadString('\n')
 		if err == io.EOF {
 			break
 		}
