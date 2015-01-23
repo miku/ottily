@@ -27,5 +27,6 @@ _testmain.go
 /eachline
 /eachline-parse
 /eachline-parse-parallel
+/eachline-parse-parallel-batch
 /datasets/*ldj
 
