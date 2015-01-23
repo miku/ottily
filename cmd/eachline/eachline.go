@@ -1,4 +1,3 @@
-// This will leak memory
 package main
 
 import (
