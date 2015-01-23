@@ -24,4 +24,6 @@ _testmain.go
 *.prof
 
 /ottily
-/datasets/1*ldj
+/eachline
+/datasets/*ldj
+
