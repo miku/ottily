@@ -13,12 +13,14 @@ import (
 	"time"
 )
 
-func Worker(lines chan string, ticker chan bool, wg *sync.WaitGroup) {
+func Worker(batches chan []string, ticker chan bool, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var container map[string]interface{}
-	for line := range lines {
-		json.Unmarshal([]byte(line), &container)
-		ticker <- true
+	for batch := range batches {
+		for _, line := range batch {
+			json.Unmarshal([]byte(line), &container)
+			ticker <- true
+		}
 	}
 }
 
@@ -44,6 +46,7 @@ func Collector(ticker, done chan bool) {
 func main() {
 
 	numWorkers := flag.Int("w", runtime.NumCPU(), "workers")
+	batchSize := flag.Int("b", 100, "batch size")
 
 	flag.Parse()
 
@@ -56,7 +59,7 @@ func main() {
 	defer ff.Close()
 	reader := bufio.NewReader(ff)
 
-	lines := make(chan string)
+	batches := make(chan []string)
 	ticker := make(chan bool)
 	done := make(chan bool)
 
@@ -64,9 +67,11 @@ func main() {
 
 	var wg sync.WaitGroup
 	for i := 0; i < runtime.NumCPU(); i++ {
-		go Worker(lines, ticker, &wg)
+		go Worker(batches, ticker, &wg)
 	}
 
+	counter := 0
+	batch := make([]string, 100)
 	for {
 		line, err := reader.ReadString('\n')
 		if err == io.EOF {
@@ -75,9 +80,15 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		lines <- line
+		batch = append(batch, line)
+		if counter == *batchSize-1 {
+			batches <- batch
+			batch = batch[:0]
+			counter = 0
+		}
+		counter++
 	}
-	close(lines)
+	close(batches)
 	wg.Wait()
 	close(ticker)
 	<-done
