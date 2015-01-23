@@ -37,10 +37,10 @@ func main() {
 		}
 		// json.Unmarshal([]byte(line), &container)
 		counter++
-		if counter%100000 == 0 {
+		if counter%1000000 == 0 {
 			elapsed := time.Since(start)
 			speed := float64(counter) / elapsed.Seconds()
-			eta, _ := time.ParseDuration(fmt.Sprintf("%0.3fs", float64(70000000)/speed))
+			eta, _ := time.ParseDuration(fmt.Sprintf("%0.3fs", float64(72727729-counter)/speed))
 			log.Printf("%d %0.3f %s\n", counter, speed, eta)
 		}
 	}
