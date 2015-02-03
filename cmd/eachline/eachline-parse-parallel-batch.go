@@ -89,6 +89,7 @@ func main() {
 		}
 		counter++
 	}
+	batches <- batch
 	close(batches)
 	wg.Wait()
 	close(ticker)
